@@ -1,0 +1,12 @@
+{
+  "name": "toolkit",
+  "version": "0.1.0",
+  "displayName": "Toolkit",
+  "keywords": [],
+  "author": {
+    "name": "HelpOrMe",
+    "url": "https://github.com/HelpOrMe"
+  },
+  "type": "library",
+  "hideInEditor": true
+}
