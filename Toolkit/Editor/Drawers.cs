@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace JectEditor.Toolkit
+namespace Toolkit.Editor
 {
     public static class Drawers
     {

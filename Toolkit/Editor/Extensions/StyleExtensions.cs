@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace JectEditor.Toolkit.Extensions
+namespace Toolkit.Editor.Extensions
 {
     public static class StyleExtensions
     {

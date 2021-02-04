@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace JectEditor.Toolkit
+namespace Toolkit.Editor
 {
     public static class ButtonDrawers
     {

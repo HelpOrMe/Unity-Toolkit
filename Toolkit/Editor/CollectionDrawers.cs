@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace JectEditor.Toolkit
+namespace Toolkit.Editor
 {
     public static class CollectionDrawers
     { 

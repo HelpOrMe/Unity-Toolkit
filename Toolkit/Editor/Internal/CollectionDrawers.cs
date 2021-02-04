@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace JectEditor.Toolkit.Internal
+namespace Toolkit.Editor.Internal
 {
     internal static class CollectionDrawers
     {
