@@ -57,6 +57,42 @@ namespace Toolkit.Editor.Extensions
         {
             rect.height += height;
             return rect;
-        } 
+        }
+
+        public static Rect[] Column(this Rect rect, int length)
+        {
+            var rectArray = new Rect[length];
+            rectArray[0] = rect;
+            
+            for (int i = 1; i < length; i++)
+            {
+                rectArray[i] = rectArray[i - 1].ColumnNext();
+            }
+
+            return rectArray;
+        }
+        
+        public static Rect ColumnNext(this Rect rect)
+        {
+            const float space = 2;
+            rect.y += rect.height + space;
+            return rect;
+        }
+        
+        public static Rect[] SplitRow(this Rect rect, params float[] sizes)
+        {
+            const float space = 4;
+            
+            var rectArray = new Rect[sizes.Length];
+            rectArray[0] = rect.WithW(sizes[0] - space);
+            
+            for (int i = 1; i < sizes.Length; i++)
+            {
+                float sizeDecr = i == sizes.Length - 1 ? 0 : space;
+                rectArray[i] = rect.WithXW(rectArray[i - 1].xMax + space, sizes[i] - sizeDecr);
+            }
+
+            return rectArray;
+        }
     }
 }
