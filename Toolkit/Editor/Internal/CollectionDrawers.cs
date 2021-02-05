@@ -149,12 +149,11 @@ namespace Toolkit.Editor.Internal
 
             if (!foldout) return false;
             
-            Dictionary(dictionary, defaultKey, defaultValue, keyGuiMethod, valueGuiMethod);
+            Dictionary(dictionary, keyGuiMethod, valueGuiMethod);
             return true;
         }
 
-        public static void Dictionary<TKey, TValue>(Dictionary<TKey, TValue> dictionary,
-            TKey defaultKey, TValue defaultValue, 
+        public static void Dictionary<TKey, TValue>(Dictionary<TKey, TValue> dictionary, 
             Func<TKey, TKey> keyGuiMethod, Func<TKey, TValue, TValue> valueGuiMethod)
         {
             foreach (KeyValuePair<TKey, TValue> entry in new Dictionary<TKey, TValue>(dictionary))
@@ -185,11 +184,11 @@ namespace Toolkit.Editor.Internal
             
             if (!foldout) return false;
             
-            List(list, defaultValue, guiMethod);
+            List(list, guiMethod);
             return true;
         }
 
-        public static void List<T>(List<T> list, T defaultValue, Func<T, int, T> guiMethod)
+        public static void List<T>(List<T> list, Func<T, int, T> guiMethod)
         {
             int indexToRemove = -1;
             
@@ -224,11 +223,11 @@ namespace Toolkit.Editor.Internal
 
             if (!foldout) return false;
             
-            Array(ref array, defaultValue, guiMethod);
+            Array(ref array, guiMethod);
             return true;
         }
 
-        public static void Array<T>(ref T[] array, T defaultValue, Func<T, int, T> guiMethod)
+        public static void Array<T>(ref T[] array, Func<T, int, T> guiMethod)
         {
             int stackIndex = 0;
             for (int i = 0; i < array.Length; i++)

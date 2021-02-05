@@ -40,7 +40,7 @@ namespace Toolkit.Editor
         
         public static void Dictionary<TKey, TValue>(Dictionary<TKey, TValue> dictionary,
             TKey defaultKey, TValue defaultValue)
-            => Internal.CollectionDrawers.Dictionary(dictionary, defaultKey, defaultValue,
+            => Internal.CollectionDrawers.Dictionary(dictionary,
                 Drawers.Draw,
                 (_, value) => Drawers.Draw(value)
             );
@@ -53,7 +53,7 @@ namespace Toolkit.Editor
                 (item, i) => Drawers.Draw(item));
         
         public static void List<T>(List<T> list, T defaultValue) 
-            => Internal.CollectionDrawers.List(list, defaultValue, (item, i) => Drawers.Draw(item));
+            => Internal.CollectionDrawers.List(list, (item, i) => Drawers.Draw(item));
         
         public static bool Array<T>(string label, ref T[] array, T defaultValue, bool foldout) 
             => Array(new GUIContent(label), ref array, defaultValue, foldout);
@@ -63,6 +63,6 @@ namespace Toolkit.Editor
                 (item, i) => Drawers.Draw(item));
         
         public static void Array<T>(ref T[] array, T defaultValue)
-            => Internal.CollectionDrawers.Array(ref array, defaultValue, (item, i) => Drawers.Draw(item));
+            => Internal.CollectionDrawers.Array(ref array, (item, i) => Drawers.Draw(item));
     }
 }
