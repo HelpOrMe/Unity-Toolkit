@@ -10,22 +10,31 @@ namespace Toolkit.Collections
     public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IEditorDictionary, 
         ISerializationCallbackReceiver
     {
+        public Type KeyType => typeof(TKey);
+        public Type ValueType => typeof(TValue);
+        
         [SerializeField] private SerializeContainer<TKey>[] keys;
         [SerializeField] private SerializeContainer<TValue>[] values;
 
         public SerializableDictionary() { }
         public SerializableDictionary(IDictionary<TKey, TValue> dictionary) : base(dictionary) { }
-        
+
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void AddEntry(object key, object value)
         {
-            this[(TKey)key] = (TValue)value;
+            if (key is TKey tKey && value is TValue tValue && !ContainsKey(tKey))
+            {
+                this[tKey] = tValue;
+            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void RemoveEntry(object key)
         {
-            Remove((TKey)key);
+            if (key is TKey tKey)
+            {
+                Remove(tKey);
+            }
         }
 
         [EditorBrowsable(EditorBrowsableState.Never)]

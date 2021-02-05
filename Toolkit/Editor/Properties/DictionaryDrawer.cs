@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Toolkit.Collections;
+using Toolkit.Editor.Extensions;
 using UnityEditor;
 using UnityEngine;
 
@@ -14,30 +16,37 @@ namespace Toolkit.Editor.Properties
         
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
-            var viewAttr = fieldInfo.GetCustomAttribute<DictionaryViewAttribute>();
-            if (viewAttr == null)
-                return;
+            position.height = 18;
 
-            var dict = fieldInfo.GetValue(property.serializedObject.targetObject) as IEditorDictionary;
-            if (dict == null)
+            if (!TryValidate(property, out string message))
             {
-                EditorGUILayout.HelpBox("Unsupported nesting level", MessageType.Warning);
+                if (message != null && GetViewAttr().ShowUnsupportedBox)
+                {
+                    EditorGUI.HelpBox(position, message, MessageType.Error);
+                }
                 return;
             }
-            
+
             int fieldToken = fieldInfo.MetadataToken;
             if (!Foldouts.ContainsKey(fieldToken))
             {
                 Foldouts[fieldToken] = false;
             }
 
-            if (DrawFoldout(label, dict, viewAttr.DefaultKey, viewAttr.DefaultValue))
+            var viewAttr = fieldInfo.GetCustomAttribute<DictionaryViewAttribute>();
+            IEditorDictionary dict = GetDict(property);
+            
+            object defaultKey = viewAttr.DefaultKey ?? Activator.CreateInstance(dict!.KeyType);
+            object defaultValue = viewAttr.DefaultValue ?? Activator.CreateInstance(dict!.ValueType);
+            
+            if (DrawFoldout(position, label, dict, defaultKey, defaultValue))
             {
-                DrawBody(dict);
+                DrawBody(position, dict);
             }
         }
 
-        private bool DrawFoldout(GUIContent label, IEditorDictionary dict, object defaultKey, object defaultValue)
+        private bool DrawFoldout(Rect position, GUIContent label, IEditorDictionary dict, 
+            object defaultKey, object defaultValue)
         {
             int fieldToken = fieldInfo.MetadataToken;
             if (!Foldouts.ContainsKey(fieldToken))
@@ -45,39 +54,136 @@ namespace Toolkit.Editor.Properties
                 Foldouts[fieldToken] = false;
             }
 
-            EditorGUILayout.BeginHorizontal();
-            bool foldout = EditorGUILayout.Foldout(Foldouts[fieldToken], label);
-
-            if (ButtonDrawers.Plus())
+            float buttonWidth = ButtonDrawers.ButtonSize.x;
+            Rect[] rects = position.SplitRow(position.width - buttonWidth, buttonWidth);
+            
+            bool foldout = EditorGUI.Foldout(rects[0], Foldouts[fieldToken], label);
+            if (ButtonDrawers.Plus(rects[1]))
             {
                 dict.AddEntry(defaultKey, defaultValue);
             }
-            EditorGUILayout.EndHorizontal();
 
             return Foldouts[fieldToken] = foldout;
         }
 
-        private void DrawBody(IEditorDictionary dict)
+        private void DrawBody(Rect position, IEditorDictionary dict)
         {
             foreach (KeyValuePair<object, object> entry in dict.GetEntries().ToList())
             {
-                EditorGUILayout.BeginHorizontal();
+                position = position.ColumnNext();
                 
-                dict.RemoveEntry(entry.Key);
+                float buttonWidth = ButtonDrawers.ButtonSize.x;
+                float columnSize = (position.width - buttonWidth) / 2; 
                 
-                object newKey = Drawers.Draw(entry.Key);
-                object newValue = Drawers.Draw(entry.Value);
+                Rect[] row = position.SplitRow(columnSize, columnSize, buttonWidth);
+                
+                object newKey = Drawers.Draw(row[0], entry.Key);
+                object newValue = Drawers.Draw(row[1], entry.Value);
 
-                dict.AddEntry(newKey, newValue);
+                if (newKey != entry.Key || newValue != entry.Value)
+                {
+                    dict.RemoveEntry(entry.Key);
+                    dict.AddEntry(newKey, newValue);
+                }
                 
-                if (ButtonDrawers.Minus())
+                if (ButtonDrawers.Minus(row[2]))
                 {
                     dict.RemoveEntry(newKey);
                 }
-                EditorGUILayout.EndHorizontal();
             }
         }
 
-        public override float GetPropertyHeight(SerializedProperty property, GUIContent label) => 0;
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            if (!TryValidate(property, out string message))
+                return GetViewAttr().ShowUnsupportedBox && message != null ? 18 : 0;
+
+            int fieldToken = fieldInfo.MetadataToken;
+            if (!Foldouts.ContainsKey(fieldToken) || !Foldouts[fieldToken])
+                return 18;
+            
+            const float space = 2;
+            return 18 + GetDict(property).GetEntries().Count() * (18 + space) + space;
+        }
+
+        private bool TryValidate(SerializedProperty property, out string message) 
+            => ValidateUnsupported(property, out message) && ValidateDefaultConstructors(property, out message);
+
+        private bool ValidateUnsupported(SerializedProperty property, out string message)
+        {
+            message = null;
+            
+            if (GetViewAttr() == null)
+                return false;
+
+            var dict = GetDict(property);
+
+            if (dict == null)
+            {
+                message = "Unsupported dictionary nesting level";
+                return false;
+            }
+
+            if (!CanBeDrawn(dict))
+            {
+                message = "Unsupported dictionary generic types";
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool ValidateDefaultConstructors(SerializedProperty property, out string message)
+        {
+            DictionaryViewAttribute viewAttr = GetViewAttr();
+            IEditorDictionary dict = GetDict(property);
+            
+            if (viewAttr.DefaultKey == null)
+            {
+                try
+                {
+                    Activator.CreateInstance(dict!.KeyType);
+                }
+                catch (MissingMethodException)
+                {
+                    message = "Invalid key constructor. Use DictionaryView(defaultKey: ...)";
+                    return false;
+                }
+            }
+            
+            if (viewAttr.DefaultValue == null)
+            {
+                try
+                {
+                    Activator.CreateInstance(dict!.ValueType);
+                }
+                catch (MissingMethodException)
+                {
+                    message = "Invalid value constructor. Use DictionaryView(defaultValue: ...)";
+                    return false;
+                }
+            }
+
+            message = null;
+            return true;
+        }
+        
+        private bool CanBeDrawn(IEditorDictionary dict) 
+            => (Drawers.TypeDrawers.ContainsKey(dict.KeyType) || dict.KeyType.IsEnum) 
+               && (Drawers.TypeDrawers.ContainsKey(dict.ValueType) || dict.ValueType.IsEnum);
+
+        private DictionaryViewAttribute GetViewAttr() => fieldInfo.GetCustomAttribute<DictionaryViewAttribute>();
+        
+        private IEditorDictionary GetDict(SerializedProperty property)
+        {
+            try
+            {
+                return fieldInfo.GetValue(property.serializedObject.targetObject) as IEditorDictionary;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
     }
 }
