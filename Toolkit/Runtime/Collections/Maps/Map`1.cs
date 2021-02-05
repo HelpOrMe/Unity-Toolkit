@@ -51,6 +51,17 @@ namespace Toolkit.Collections
                 }
             }
         }
+
+        public void CopyTo(ref T[,] other)
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    other[x, y] = this[x, y];
+                }
+            }
+        }
         
         public IEnumerator<T> GetEnumerator() => ((IEnumerable<T>)array).GetEnumerator();
         
@@ -59,15 +70,7 @@ namespace Toolkit.Collections
         public static explicit operator T[,](Map<T> map)
         {
             var array2d = new T[map.width, map.height];
-            
-            for (int x = 0; x < map.width; x++)
-            {
-                for (int y = 0; y < map.height; y++)
-                {
-                    array2d[x, y] = map[x, y];
-                }
-            }
-
+            map.CopyTo(ref array2d);
             return array2d;
         }
 

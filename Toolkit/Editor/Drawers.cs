@@ -14,7 +14,8 @@ namespace Toolkit.Editor
                 [typeof(int)] = o => EditorGUILayout.IntField((int)o),
                 [typeof(float)] = o => EditorGUILayout.FloatField((float)o),
                 [typeof(bool)] = o => EditorGUILayout.Toggle((bool)o),
-                [typeof(Object)] = o => EditorGUILayout.ObjectField((Object)o, o.GetType(), true)
+                [typeof(Object)] = o => EditorGUILayout.ObjectField((Object)o, o.GetType(), true),
+                [typeof(Enum)] = o => EditorGUILayout.EnumPopup((Enum)o)
             };
         
         public static T Draw<T>(T obj)
@@ -24,6 +25,18 @@ namespace Toolkit.Editor
                 if (TypeDrawers.ContainsKey(t))
                 {
                     return (T)TypeDrawers[t](obj);
+                }
+            }
+            return obj;
+        }
+        
+        public static object Draw(object obj)
+        {
+            for (Type t = obj.GetType(); t != null; t = t.BaseType)
+            {
+                if (TypeDrawers.ContainsKey(t))
+                {
+                    return TypeDrawers[t](obj);
                 }
             }
             return obj;
