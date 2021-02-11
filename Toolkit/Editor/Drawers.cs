@@ -9,7 +9,7 @@ namespace Toolkit.Editor
     public static class Drawers
     {
         public static readonly Dictionary<Type, Func<Rect, object, object>> TypeDrawers =
-            new Dictionary<Type, Func<Rect,object, object>>
+            new Dictionary<Type, Func<Rect, object, object>>
             {
                 [typeof(string)] = (p, o) => EditorGUI.TextField(p, (string)o),
                 [typeof(float)] = (p, o) => EditorGUI.FloatField(p, (float)o),
@@ -21,7 +21,6 @@ namespace Toolkit.Editor
                 [typeof(Rect)] = (p, o) => EditorGUI.RectField(p, (Rect)o),
                 [typeof(AnimationCurve)] = (p, o) => EditorGUI.CurveField(p, (AnimationCurve)o),
                 [typeof(Color)] = (p, o) => EditorGUI.ColorField(p, (Color)o),
-                [typeof(Object)] = (p, o) => EditorGUI.ObjectField(p, GUIContent.none, (Object)o, o.GetType(), true),
                 [typeof(Enum)] = (p, o) => EditorGUI.EnumPopup(p, (Enum)o),
             };
         
@@ -39,25 +38,19 @@ namespace Toolkit.Editor
                 [typeof(Rect)] = o => EditorGUILayout.RectField((Rect)o),
                 [typeof(AnimationCurve)] = o => EditorGUILayout.CurveField((AnimationCurve)o),
                 [typeof(Color)] = o => EditorGUILayout.ColorField((Color)o),
-                [typeof(Object)] = o => EditorGUILayout.ObjectField((Object)o, o.GetType(), true),
                 [typeof(Enum)] = o => EditorGUILayout.EnumPopup((Enum)o)
             };
 
-        public static T Draw<T>(Rect position, T obj)
-        {
-            for (Type t = typeof(T); t != null; t = t.BaseType)
-            {
-                if (TypeDrawers.ContainsKey(t))
-                {
-                    return (T)TypeDrawers[t](position, obj);
-                }
-            }
-            return obj;
-        }
+        public static T Draw<T>(Rect position, T obj) => (T)Draw(position, typeof(T), obj);
         
-        public static object Draw(Rect position,object obj)
+        public static object Draw(Rect position, Type type, object obj)
         {
-            for (Type t = obj.GetType(); t != null; t = t.BaseType)
+            if (typeof(Object).IsAssignableFrom(type))
+            {
+                return EditorGUI.ObjectField(position, GUIContent.none, (Object) obj, type, true);
+            }
+            
+            for (Type t = type; t != null; t = t.BaseType)
             {
                 if (TypeDrawers.ContainsKey(t))
                 {
@@ -66,22 +59,17 @@ namespace Toolkit.Editor
             }
             return obj;
         }
+
+        public static T Draw<T>(T obj) => (T)Draw(typeof(T), obj);
         
-        public static T Draw<T>(T obj)
+        public static object Draw(Type type, object obj)
         {
-            for (Type t = typeof(T); t != null; t = t.BaseType)
+            if (typeof(Object).IsAssignableFrom(type))
             {
-                if (TypeLayoutDrawers.ContainsKey(t))
-                {
-                    return (T)TypeLayoutDrawers[t](obj);
-                }
+                return EditorGUILayout.ObjectField(GUIContent.none, (Object)obj, type, true);
             }
-            return obj;
-        }
-        
-        public static object Draw(object obj)
-        {
-            for (Type t = obj.GetType(); t != null; t = t.BaseType)
+            
+            for (Type t = type; t != null; t = t.BaseType)
             {
                 if (TypeLayoutDrawers.ContainsKey(t))
                 {
@@ -89,6 +77,23 @@ namespace Toolkit.Editor
                 }
             }
             return obj;
+        }
+        
+        public static bool CanDraw(Type type)
+        {
+            if (typeof(Object).IsAssignableFrom(type))
+            {
+                return true;
+            } 
+            
+            for (Type t = type; t != null; t = t.BaseType)
+            {
+                if (TypeDrawers.ContainsKey(t))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }
