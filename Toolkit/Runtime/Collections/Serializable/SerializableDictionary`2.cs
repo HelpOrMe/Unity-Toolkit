@@ -22,9 +22,9 @@ namespace Toolkit.Collections
         [EditorBrowsable(EditorBrowsableState.Never)]
         public void AddEntry(object key, object value)
         {
-            if (key is TKey tKey && value is TValue tValue && !ContainsKey(tKey))
+            if (!ContainsKey((TKey)key))
             {
-                this[tKey] = tValue;
+                this[(TKey)key] = (TValue)value;
             }
         }
 

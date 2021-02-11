@@ -6,6 +6,7 @@ using Toolkit.Collections;
 using Toolkit.Editor.Extensions;
 using UnityEditor;
 using UnityEngine;
+using Object = System.Object;
 
 namespace Toolkit.Editor.Properties
 {
@@ -36,10 +37,7 @@ namespace Toolkit.Editor.Properties
             var viewAttr = fieldInfo.GetCustomAttribute<DictionaryViewAttribute>();
             IEditorDictionary dict = GetDict(property);
             
-            object defaultKey = viewAttr.DefaultKey ?? Activator.CreateInstance(dict!.KeyType);
-            object defaultValue = viewAttr.DefaultValue ?? Activator.CreateInstance(dict!.ValueType);
-            
-            if (DrawFoldout(position, label, dict, defaultKey, defaultValue))
+            if (DrawFoldout(position, label, dict, viewAttr.DefaultKey, viewAttr.DefaultValue))
             {
                 DrawBody(position, dict);
             }
@@ -60,6 +58,8 @@ namespace Toolkit.Editor.Properties
             bool foldout = EditorGUI.Foldout(rects[0], Foldouts[fieldToken], label);
             if (ButtonDrawers.Plus(rects[1]))
             {
+                defaultKey ??= CreateInstance(dict.KeyType);
+                defaultValue ??= CreateInstance(dict.ValueType);
                 dict.AddEntry(defaultKey, defaultValue);
             }
 
@@ -77,8 +77,8 @@ namespace Toolkit.Editor.Properties
                 
                 Rect[] row = position.SplitRow(columnSize, columnSize, buttonWidth);
                 
-                object newKey = Drawers.Draw(row[0], entry.Key);
-                object newValue = Drawers.Draw(row[1], entry.Value);
+                object newKey = Drawers.Draw(row[0], dict.KeyType, entry.Key);
+                object newValue = Drawers.Draw(row[1], dict.ValueType, entry.Value);
 
                 if (newKey != entry.Key || newValue != entry.Value)
                 {
@@ -142,7 +142,7 @@ namespace Toolkit.Editor.Properties
             {
                 try
                 {
-                    Activator.CreateInstance(dict!.KeyType);
+                    CreateInstance(dict!.KeyType);
                 }
                 catch (MissingMethodException)
                 {
@@ -155,7 +155,7 @@ namespace Toolkit.Editor.Properties
             {
                 try
                 {
-                    Activator.CreateInstance(dict!.ValueType);
+                    CreateInstance(dict!.ValueType);
                 }
                 catch (MissingMethodException)
                 {
@@ -167,10 +167,18 @@ namespace Toolkit.Editor.Properties
             message = null;
             return true;
         }
+
+        private object CreateInstance(Type type)
+        {
+            if (!typeof(UnityEngine.Object).IsAssignableFrom(type))
+            {
+                return Activator.CreateInstance(type);
+            }
+            return null;
+        }
         
-        private bool CanBeDrawn(IEditorDictionary dict) 
-            => (Drawers.TypeDrawers.ContainsKey(dict.KeyType) || dict.KeyType.IsEnum) 
-               && (Drawers.TypeDrawers.ContainsKey(dict.ValueType) || dict.ValueType.IsEnum);
+        private bool CanBeDrawn(IEditorDictionary dict)
+            => Drawers.CanDraw(dict.KeyType) && Drawers.CanDraw(dict.ValueType);
 
         private DictionaryViewAttribute GetViewAttr() => fieldInfo.GetCustomAttribute<DictionaryViewAttribute>();
         
