@@ -5,7 +5,7 @@ using System.Collections.Generic;
 namespace Toolkit.Collections
 {
     [Serializable]
-    public class DictDynamicMap<T> : IDynamicMap<T>
+    public class DictMap<T> : IDynamicMap<T>
     {
         public T this[int x, int y]
         {
@@ -18,24 +18,24 @@ namespace Toolkit.Collections
         
         protected SerializableDictionary<int, T> Dict;
 
-        public DictDynamicMap(DictDynamicMap<T> other) : this(other.Width, other.Height)
+        public DictMap(DictMap<T> other) : this(other.Width, other.Height)
         {
             CopyFrom(other);
         }
         
-        public DictDynamicMap(T[,] other) : this(other.GetLength(0), other.GetLength(1))
+        public DictMap(T[,] other) : this(other.GetLength(0), other.GetLength(1))
         {
             CopyFrom(other);
         }
         
-        public DictDynamicMap(int width, int height)
+        public DictMap(int width, int height)
         {
             Dict = new SerializableDictionary<int, T>();
             Width = width;
             Height = height;
         }
 
-        public void CopyFrom(DictDynamicMap<T> other)
+        public void CopyFrom(DictMap<T> other)
         {
             Dict = new SerializableDictionary<int, T>(other.Dict);
         }
@@ -73,13 +73,13 @@ namespace Toolkit.Collections
         
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         
-        public static explicit operator T[,](DictDynamicMap<T> dynamicMap)
+        public static explicit operator T[,](DictMap<T> map)
         {
-            var array2d = new T[dynamicMap.Width, dynamicMap.Height];
-            dynamicMap.CopyTo(ref array2d);
+            var array2d = new T[map.Width, map.Height];
+            map.CopyTo(ref array2d);
             return array2d;
         }
 
-        public static explicit operator DictDynamicMap<T>(T[,] array2d) => new DictDynamicMap<T>(array2d);
+        public static explicit operator DictMap<T>(T[,] array2d) => new DictMap<T>(array2d);
     }
 }

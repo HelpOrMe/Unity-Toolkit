@@ -33,6 +33,8 @@ namespace Toolkit.Collections
         
         public Map(int width, int height)
         {
+            this.width = width;
+            this.height = height;
             array = new T[width * height];
         }
 
