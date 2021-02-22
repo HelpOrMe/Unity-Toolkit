@@ -95,8 +95,14 @@ namespace Toolkit.Editor.Properties
 
         public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
         {
+            DictionaryViewAttribute viewAttr = GetViewAttr();
+            if (viewAttr == null)
+            {
+                return 0;
+            }
+            
             if (!TryValidate(property, out string message))
-                return GetViewAttr().ShowUnsupportedBox && message != null ? 18 : 0;
+                return viewAttr.ShowUnsupportedBox && message != null ? 18 : 0;
 
             int fieldToken = fieldInfo.MetadataToken;
             if (!Foldouts.ContainsKey(fieldToken) || !Foldouts[fieldToken])
