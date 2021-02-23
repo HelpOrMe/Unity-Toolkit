@@ -1,25 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using UnityEngine;
 
 namespace Toolkit.Collections
 {
     [Serializable]
-    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IEditorDictionary, 
-        ISerializationCallbackReceiver
+    public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, ISerializationCallbackReceiver
+#if UNITY_EDITOR
+        ,IEditorDictionary
+#endif
     {
-        public Type KeyType => typeof(TKey);
-        public Type ValueType => typeof(TValue);
-        
+
         [SerializeField] private SerializeContainer<TKey>[] keys;
         [SerializeField] private SerializeContainer<TValue>[] values;
 
         public SerializableDictionary() { }
         public SerializableDictionary(IDictionary<TKey, TValue> dictionary) : base(dictionary) { }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
+#if UNITY_EDITOR
+        public Type KeyType => typeof(TKey);
+        public Type ValueType => typeof(TValue);
+        
         public void AddEntry(object key, object value)
         {
             if (!ContainsKey((TKey)key))
@@ -28,7 +30,6 @@ namespace Toolkit.Collections
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public void RemoveEntry(object key)
         {
             if (key is TKey tKey)
@@ -37,9 +38,9 @@ namespace Toolkit.Collections
             }
         }
 
-        [EditorBrowsable(EditorBrowsableState.Never)]
         public IEnumerable<KeyValuePair<object, object>> GetEntries() 
             => this.Select(pair => new KeyValuePair<object, object>(pair.Key, pair.Value));
+#endif
 
         public void OnBeforeSerialize()
         {
