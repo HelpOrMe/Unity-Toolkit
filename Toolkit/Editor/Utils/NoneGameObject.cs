@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Toolkit.Editor.Utils
+namespace ToolkitEditor.Utils
 {
     public class NoneGameObject
     {

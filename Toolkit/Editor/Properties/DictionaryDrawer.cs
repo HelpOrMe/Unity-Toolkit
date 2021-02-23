@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Toolkit.Collections;
-using Toolkit.Editor.Extensions;
+using ToolkitEditor.Extensions;
 using UnityEditor;
 using UnityEngine;
-using Object = System.Object;
 
-namespace Toolkit.Editor.Properties
+namespace ToolkitEditor.Properties
 {
     [CustomPropertyDrawer(typeof(IEditorDictionary), true)]
     public class DictionaryDrawer : PropertyDrawer

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-namespace Toolkit.Editor
+namespace ToolkitEditor
 {
     public static class CollectionDrawers
     { 

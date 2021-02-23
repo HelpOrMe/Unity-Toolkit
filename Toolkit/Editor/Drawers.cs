@@ -4,7 +4,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Toolkit.Editor
+namespace ToolkitEditor
 {
     public static class Drawers
     {

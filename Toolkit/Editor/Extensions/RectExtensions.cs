@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Toolkit.Editor.Extensions
+namespace ToolkitEditor.Extensions
 {
     public static class RectExtensions
     {

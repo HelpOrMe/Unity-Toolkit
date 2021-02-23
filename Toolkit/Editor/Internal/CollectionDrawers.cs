@@ -4,7 +4,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-namespace Toolkit.Editor.Internal
+namespace ToolkitEditor.Internal
 {
     internal static class CollectionDrawers
     {
