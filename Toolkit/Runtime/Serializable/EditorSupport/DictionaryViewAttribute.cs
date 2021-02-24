@@ -2,7 +2,7 @@
 
 namespace Toolkit.Serializable
 {
-    [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Field)]
     public class DictionaryViewAttribute : Attribute
     {
         public readonly object DefaultKey;

@@ -6,7 +6,7 @@ namespace Toolkit.Serializable
     [Serializable]
     public class SerializableObject : ISerializationCallbackReceiver
     {
-        [NonSerialized] public object Value;
+        public object Value { get; set; }
         
         [SerializeField] private string valueTypeName;
         [SerializeField] private string valueJson;

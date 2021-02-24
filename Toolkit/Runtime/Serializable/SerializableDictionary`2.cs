@@ -11,7 +11,6 @@ namespace Toolkit.Serializable
         ,IEditorDictionary
 #endif
     {
-
         [SerializeField] private SerializeContainer<TKey>[] keys;
         [SerializeField] private SerializeContainer<TValue>[] values;
 
