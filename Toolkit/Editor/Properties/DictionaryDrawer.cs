@@ -16,11 +16,19 @@ namespace ToolkitEditor.Properties
         
         public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
         {
+            DictionaryViewAttribute viewAttr = GetViewAttr();
+
+            if (viewAttr == null)
+            {
+                EditorGUI.PropertyField(position, property, label, true);
+                return;
+            }
+            
             position.height = 18;
 
             if (!TryValidate(property, out string message))
             {
-                if (message != null && GetViewAttr().ShowUnsupportedBox)
+                if (message != null && viewAttr.ShowUnsupportedBox)
                 {
                     EditorGUI.HelpBox(position, message, MessageType.Error);
                 }
@@ -33,7 +41,6 @@ namespace ToolkitEditor.Properties
                 Foldouts[fieldToken] = false;
             }
 
-            var viewAttr = fieldInfo.GetCustomAttribute<DictionaryViewAttribute>();
             IEditorDictionary dict = GetDict(property);
             
             if (DrawFoldout(position, label, dict, viewAttr.DefaultKey, viewAttr.DefaultValue))
@@ -97,7 +104,7 @@ namespace ToolkitEditor.Properties
             DictionaryViewAttribute viewAttr = GetViewAttr();
             if (viewAttr == null)
             {
-                return 0;
+                return property.CountInProperty() * 20;
             }
             
             if (!TryValidate(property, out string message))
