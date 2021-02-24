@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Toolkit.Collections
+namespace Toolkit.Serializable
 {
     public interface IEditorDictionary
     {

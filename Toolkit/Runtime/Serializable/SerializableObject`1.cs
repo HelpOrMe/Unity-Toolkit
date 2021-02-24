@@ -1,17 +1,19 @@
 ﻿using System;
 using UnityEngine;
 
-namespace Toolkit.Collections
+namespace Toolkit.Serializable
 {
     [Serializable]
-    public class SerializableObject : ISerializationCallbackReceiver
+    public class SerializableObject<T> : ISerializationCallbackReceiver
     {
-        [NonSerialized] public object Value;
+        [NonSerialized] public T Value;
         
         [SerializeField] private string valueTypeName;
         [SerializeField] private string valueJson;
 
-        public SerializableObject(object value)
+        public SerializableObject() : this(Activator.CreateInstance<T>()) { }
+        
+        public SerializableObject(T value)
         {
             Value = value;
         }
@@ -29,7 +31,7 @@ namespace Toolkit.Collections
         {
             if (!string.IsNullOrEmpty(valueJson))
             {
-                Value = Activator.CreateInstance(Type.GetType(valueTypeName)!);
+                Value = (T)Activator.CreateInstance(Type.GetType(valueTypeName)!);
                 JsonUtility.FromJsonOverwrite(valueJson, Value);
             }
 

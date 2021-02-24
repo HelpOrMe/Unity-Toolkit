@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Toolkit.Collections
+namespace Toolkit.Serializable
 {
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property)]
     public class DictionaryViewAttribute : Attribute
