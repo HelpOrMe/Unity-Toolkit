@@ -6,7 +6,6 @@ namespace Toolkit
     [Serializable]
     public struct Identifier
     {
-        public static readonly Identifier None = default;
         
         [SerializeField] private string sign;
         [SerializeField] private int hashCode;
